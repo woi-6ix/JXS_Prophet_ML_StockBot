@@ -26,6 +26,22 @@ def prepare_prophet_stock_data(stock_df):
 # Main Function #
 def main():
     st.title("JXS Prophet Stock Prediction App")
+    
+    # Introductory Paragraph
+    st.write("""
+    ### How the Model Works
+    This app uses **Facebook's Prophet** model to predict stock prices. Prophet is a time series forecasting tool that decomposes data into trend, seasonality, and holiday effects. It uses an additive model to fit non-linear trends and incorporates seasonality (yearly, weekly, and daily) to make predictions. The model is particularly useful for stock price forecasting because it handles missing data and outliers well, and it provides confidence intervals for predictions.
+
+    The app also calculates **moving averages (50-day, 100-day, and 200-day)** to provide additional insights into stock trends. These moving averages help identify long-term and short-term trends in the stock's performance.
+    """)
+    
+    # Disclaimer
+    st.warning("""
+    ### Disclaimer
+    **These stock value predictions are for testing and educational purposes only.** They should not be used for making real-world financial decisions. Stock markets are highly volatile, and predictions are inherently uncertain. Always consult with a qualified financial advisor before making any investment decisions.
+    """)
+    
+    # User Input
     ticker = st.text_input('Enter Stock Ticker (e.g., XYZ):', 'XYZ')
     
     # Add a range slider for prediction days
