@@ -32,20 +32,20 @@ def main():
         layout="wide"
     )
 
-    # Custom CSS for black and purple theme with Google Sans font
+    # Custom CSS for LaTeX-style typography
     st.markdown("""
     <style>
-    @import url('https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Latin+Modern+Roman:wght@400;700&display=swap');
     
     .stApp {
         background-color: black;
         color: white;
-        font-family: 'Google Sans', sans-serif;
+        font-family: 'Latin Modern Roman', serif;
     }
     
     h1, h2, h3, h4, h5, h6 {
         color: purple;
-        font-family: 'Google Sans', sans-serif;
+        font-family: 'Latin Modern Roman', serif;
         font-weight: 700;
     }
     
@@ -54,22 +54,23 @@ def main():
         color: white;
         border-radius: 5px;
         border: 1px solid purple;
-        font-family: 'Google Sans', sans-serif;
+        font-family: 'Latin Modern Roman', serif;
+        font-weight: 700;
     }
     
     .stTextInput>div>div>input {
         background-color: black;
         color: white;
         border: 1px solid purple;
-        font-family: 'Google Sans', sans-serif;
-    }
-    
-    .stSlider>div>div>div>div {
-        background-color: purple;
+        font-family: 'Latin Modern Roman', serif;
     }
     
     .stDataFrame {
-        font-family: 'Google Sans', sans-serif;
+        font-family: 'Latin Modern Roman', serif;
+    }
+    
+    .stMarkdown {
+        font-family: 'Latin Modern Roman', serif;
     }
     </style>
     """, unsafe_allow_html=True)
