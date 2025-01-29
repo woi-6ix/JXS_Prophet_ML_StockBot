@@ -66,6 +66,7 @@ def main():
     st.write("""
     ### How the Model Works
     This app uses **Facebook's Prophet** model to predict stock prices. Prophet is a time series forecasting tool that decomposes data into trend, seasonality, and holiday effects. It uses an additive model to fit non-linear trends and incorporates seasonality (yearly, weekly, and daily) to make predictions.
+    
     The app also calculates **moving averages (50-day, 100-day, and 200-day)** to provide additional insights into stock trends. These moving averages help identify long-term and short-term trends in the stock's performance.
     """)
     
