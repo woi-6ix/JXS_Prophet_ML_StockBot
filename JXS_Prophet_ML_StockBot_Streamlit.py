@@ -5,6 +5,7 @@ import streamlit as st
 from prophet import Prophet     
 import pandas as pd
 import matplotlib.pyplot as plt
+import plotly.graph_objects as go  # For candlestick chart
 
 ## Defining Functions ##
 
@@ -23,8 +24,63 @@ def prepare_prophet_stock_data(stock_df):
     prophet_df.columns = ['ds', 'y']               
     return prophet_df
 
+# Create Candlestick Chart #
+def create_candlestick_chart(stock_df):
+    fig = go.Figure(data=[go.Candlestick(
+        x=stock_df.index,
+        open=stock_df['Open'],
+        high=stock_df['High'],
+        low=stock_df['Low'],
+        close=stock_df['Close'],
+        increasing_line_color='purple',  # Set colors for the theme
+        decreasing_line_color='gray'
+    )])
+    fig.update_layout(
+        title=f'{ticker} Candlestick Chart',
+        xaxis_title='Date',
+        yaxis_title='Price',
+        template='plotly_dark',  # Dark theme for Plotly
+        plot_bgcolor='black',    # Background color
+        paper_bgcolor='black'    # Outer background color
+    )
+    return fig
+
 # Main Function #
 def main():
+    # Set Streamlit page configuration for theme
+    st.set_page_config(
+        page_title="JXS Prophet Stock Prediction App",
+        page_icon="📈",
+        layout="wide"
+    )
+
+    # Custom CSS for black and purple theme
+    st.markdown("""
+    <style>
+    .stApp {
+        background-color: black;
+        color: white;
+    }
+    h1, h2, h3, h4, h5, h6 {
+        color: purple;
+    }
+    .stButton>button {
+        background-color: purple;
+        color: white;
+        border-radius: 5px;
+        border: 1px solid purple;
+    }
+    .stTextInput>div>div>input {
+        background-color: black;
+        color: white;
+        border: 1px solid purple;
+    }
+    .stSlider>div>div>div>div {
+        background-color: purple;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
     st.title("JXS Prophet Stock Prediction App")
     
     # Introductory Paragraph
@@ -60,6 +116,11 @@ def main():
             display_df = df.reset_index().rename(columns={'Date': 'Dates'})
             st.dataframe(display_df)
             
+            # Candlestick Chart
+            st.subheader(f"{ticker} Candlestick Chart")
+            candlestick_fig = create_candlestick_chart(df)
+            st.plotly_chart(candlestick_fig, use_container_width=True)
+            
             # Prepare Prophet data
             prophet_df = prepare_prophet_stock_data(df)
             
@@ -82,18 +143,26 @@ def main():
             fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(12, 10))
             
             # Modified historical data plot title
-            ax1.plot(df['Close'], label='Close Price')
-            ax1.plot(df['MA_50'], label='50-day MA')
-            ax1.plot(df['MA_100'], label='100-day MA')
-            ax1.plot(df['MA_200'], label='200-day MA')
-            ax1.set_title(f'{ticker} Historical Prices & Moving Averages')
+            ax1.plot(df['Close'], label='Close Price', color='purple')
+            ax1.plot(df['MA_50'], label='50-day MA', color='orange')
+            ax1.plot(df['MA_100'], label='100-day MA', color='green')
+            ax1.plot(df['MA_200'], label='200-day MA', color='red')
+            ax1.set_title(f'{ticker} Historical Prices & Moving Averages', color='white')
+            ax1.set_facecolor('black')
             ax1.legend()
+            ax1.tick_params(colors='white')
+            ax1.spines['bottom'].set_color('white')
+            ax1.spines['left'].set_color('white')
             
             # Prophet forecast plot
             model.plot(forecast, ax=ax2)
-            ax2.set_title(f'{ticker} {prediction_days}-Day Price Prediction')
-            ax2.set_xlabel('Date')
-            ax2.set_ylabel('Price')
+            ax2.set_title(f'{ticker} {prediction_days}-Day Price Prediction', color='white')
+            ax2.set_xlabel('Date', color='white')
+            ax2.set_ylabel('Price', color='white')
+            ax2.set_facecolor('black')
+            ax2.tick_params(colors='white')
+            ax2.spines['bottom'].set_color('white')
+            ax2.spines['left'].set_color('white')
             
             st.pyplot(fig)
             
@@ -107,23 +176,31 @@ def main():
             
             # Plot Historical vs Predicted
             fig2, ax3 = plt.subplots(figsize=(12, 6))
-            ax3.plot(df['Close'], label='Historical Close Price', color='blue')
+            ax3.plot(df['Close'], label='Historical Close Price', color='purple')
             ax3.plot(forecast.set_index('ds')['yhat'], label='Predicted Close Price', color='orange')
             ax3.fill_between(forecast.set_index('ds').index, forecast['yhat_lower'], forecast['yhat_upper'], color='orange', alpha=0.2)
-            ax3.set_title(f'{ticker} Historical vs Predicted Prices')
-            ax3.set_xlabel('Date')
-            ax3.set_ylabel('Price')
+            ax3.set_title(f'{ticker} Historical vs Predicted Prices', color='white')
+            ax3.set_xlabel('Date', color='white')
+            ax3.set_ylabel('Price', color='white')
+            ax3.set_facecolor('black')
             ax3.legend()
+            ax3.tick_params(colors='white')
+            ax3.spines['bottom'].set_color('white')
+            ax3.spines['left'].set_color('white')
             st.pyplot(fig2)
             
             # Plot Confidence Intervals
             fig3, ax4 = plt.subplots(figsize=(12, 6))
-            ax4.plot(forecast.set_index('ds')['yhat'], label='Predicted Close Price', color='green')
-            ax4.fill_between(forecast.set_index('ds').index, forecast['yhat_lower'], forecast['yhat_upper'], color='green', alpha=0.2)
-            ax4.set_title(f'{ticker} {prediction_days}-Day Price Prediction with Confidence Intervals')
-            ax4.set_xlabel('Date')
-            ax4.set_ylabel('Price')
+            ax4.plot(forecast.set_index('ds')['yhat'], label='Predicted Close Price', color='purple')
+            ax4.fill_between(forecast.set_index('ds').index, forecast['yhat_lower'], forecast['yhat_upper'], color='purple', alpha=0.2)
+            ax4.set_title(f'{ticker} {prediction_days}-Day Price Prediction with Confidence Intervals', color='white')
+            ax4.set_xlabel('Date', color='white')
+            ax4.set_ylabel('Price', color='white')
+            ax4.set_facecolor('black')
             ax4.legend()
+            ax4.tick_params(colors='white')
+            ax4.spines['bottom'].set_color('white')
+            ax4.spines['left'].set_color('white')
             st.pyplot(fig3)
             
             # Combined Table of Historical and Predicted Values
