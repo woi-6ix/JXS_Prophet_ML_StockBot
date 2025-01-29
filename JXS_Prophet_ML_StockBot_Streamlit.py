@@ -190,9 +190,12 @@ def main():
             
             # Error Metrics Section
             st.subheader("Model Error Metrics")
+            
+            # Create common 'ds' column for merging
+            df_with_dates = df.reset_index()[['Date', 'Close']].rename(columns={'Date': 'ds'})
+            merged = df_with_dates.merge(forecast[['ds', 'yhat']], on='ds', how='inner')
+            
             # Calculate metrics
-            merged = df[['Close']].merge(forecast.set_index('ds')[['yhat']], 
-                                       left_index=True, right_index=True, how='inner')
             mae = (merged['Close'] - merged['yhat']).abs().mean()
             rmse = ((merged['Close'] - merged['yhat'])**2).mean()**0.5
             mape = ((merged['Close'] - merged['yhat']).abs() / merged['Close']).mean() * 100
