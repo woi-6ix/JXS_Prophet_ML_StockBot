@@ -166,7 +166,7 @@ def main():
                 
                 # Merge actual and predicted values
                 merged_df = pd.merge(prophet_df, forecast[['ds', 'yhat']], on='ds')
-                metrics = calculate_metrics(merged_df['y'], merged_df['yhat'])
+                #metrics = calculate_metrics(merged_df['y'], merged_df['yhat'])
                 
                 # Create interactive plot
                 st.subheader(f"{ticker} Price Prediction with Historical Data")
@@ -193,8 +193,8 @@ def main():
                 trend = "Bullish" if forecast['yhat'].iloc[-1] > df['Close'].iloc[-1] else "Bearish"
                 analysis = f"""
                 The model predicts a **{trend}** trend for {ticker} over the next {prediction_days} days. 
-                With a Mean Absolute Error (MAE) of {metrics['MAE']}, the predictions suggest the stock price 
-                might fluctuate within ±{metrics['MAE']} from the forecasted values. Recent technical indicators show:
+                With a Mean Absolute Error (MAE) of , the predictions suggest the stock price 
+                might fluctuate within ± from the forecasted values. Recent technical indicators show:
                 - 50-day MA: ${df['MA_50'].iloc[-1]:.2f}
                 - 100-day MA: ${df['MA_100'].iloc[-1]:.2f}
                 - 200-day MA: ${df['MA_200'].iloc[-1]:.2f}
