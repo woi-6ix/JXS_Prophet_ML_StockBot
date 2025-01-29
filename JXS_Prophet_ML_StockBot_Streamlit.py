@@ -116,17 +116,17 @@ def prepare_prophet_stock_data(stock_df):
     prophet_df.columns = ['ds', 'y']
     return prophet_df
 
-def calculate_metrics(actual, predicted):
-    return {
-        'RMSE': round(mean_squared_error(actual, predicted, squared=False), 2),
-        'MAE': round(mean_absolute_error(actual, predicted), 2),
-        'R²': round(r2_score(actual, predicted), 2)
-    }
+#def calculate_metrics(actual, predicted):
+#    return {
+#        'RMSE': round(mean_squared_error(actual, predicted, squared=False), 2),
+#        'MAE': round(mean_absolute_error(actual, predicted), 2),
+#        'R²': round(r2_score(actual, predicted), 2)
+#    }
 
 # Main Function #
 def main():
     st.title("JXS Prophet Stock Prediction App")
-    ticker = st.text_input('Enter Stock Ticker (e.g., AAPL):', 'AAPL').upper()
+    ticker = st.text_input('Enter Stock Ticker (e.g., XYZ):', 'XYZ').upper()
     
     # Date range slider
     prediction_days = st.slider('Select prediction days:', 1, 730, 365)
@@ -182,11 +182,11 @@ def main():
                 st.plotly_chart(fig)
                 
                 # Metrics display
-                st.subheader("Model Performance Metrics")
-                col1, col2, col3 = st.columns(3)
-                col1.metric("RMSE", metrics['RMSE'])
-                col2.metric("MAE", metrics['MAE'])
-                col3.metric("R² Score", metrics['R²'])
+                #st.subheader("Model Performance Metrics")
+                #col1, col2, col3 = st.columns(3)
+                #col1.metric("RMSE", metrics['RMSE'])
+                #col2.metric("MAE", metrics['MAE'])
+                #col3.metric("R² Score", metrics['R²'])
                 
                 # Trend analysis and news
                 st.subheader("Trend Analysis & News")
@@ -202,15 +202,15 @@ def main():
                 st.write(analysis)
                 
                 # Display news articles
-                try:
-                    ticker_info = yf.Ticker(ticker)
-                    news = ticker_info.news
-                    if news:
-                        st.write("**Recent News Articles:**")
-                        for article in news[:3]:
-                            st.write(f"- [{article['title']}]({article['link']}) ({article['publisher']})")
-                except Exception as e:
-                    st.warning("Could not load news articles")
+                #try:
+                #    ticker_info = yf.Ticker(ticker)
+                #    news = ticker_info.news
+                #    if news:
+                #        st.write("**Recent News Articles:**")
+                #        for article in news[:3]:
+                #            st.write(f"- [{article['title']}]({article['link']}) ({article['publisher']})")
+                #except Exception as e:
+                #    st.warning("Could not load news articles")
                 
                 st.success('Prediction completed!')
                 
