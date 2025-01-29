@@ -5,7 +5,6 @@ import streamlit as st
 from prophet import Prophet     
 import pandas as pd
 import matplotlib.pyplot as plt
-import plotly.graph_objects as go  # For candlestick chart
 
 ## Defining Functions ##
 
@@ -23,27 +22,6 @@ def prepare_prophet_stock_data(stock_df):
     prophet_df = stock_df[['Close']].reset_index() 
     prophet_df.columns = ['ds', 'y']               
     return prophet_df
-
-# Create Candlestick Chart #
-def create_candlestick_chart(stock_df):
-    fig = go.Figure(data=[go.Candlestick(
-        x=stock_df.index,
-        open=stock_df['Open'],
-        high=stock_df['High'],
-        low=stock_df['Low'],
-        close=stock_df['Close'],
-        increasing_line_color='purple',  # Set colors for the theme
-        decreasing_line_color='gray'
-    )])
-    fig.update_layout(
-        title=f'{ticker} Candlestick Chart',
-        xaxis_title='Date',
-        yaxis_title='Price',
-        template='plotly_dark',  # Dark theme for Plotly
-        plot_bgcolor='black',    # Background color
-        paper_bgcolor='black'    # Outer background color
-    )
-    return fig
 
 # Main Function #
 def main():
@@ -115,11 +93,6 @@ def main():
             # Modified dataframe with renamed date column
             display_df = df.reset_index().rename(columns={'Date': 'Dates'})
             st.dataframe(display_df)
-            
-            # Candlestick Chart
-            st.subheader(f"{ticker} Candlestick Chart")
-            candlestick_fig = create_candlestick_chart(df)
-            st.plotly_chart(candlestick_fig, use_container_width=True)
             
             # Prepare Prophet data
             prophet_df = prepare_prophet_stock_data(df)
