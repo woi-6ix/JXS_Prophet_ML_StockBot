@@ -188,6 +188,21 @@ def main():
             ], axis=1)
             st.dataframe(combined_df)
             
+            # Error Metrics Section
+            st.subheader("Model Error Metrics")
+            # Calculate metrics
+            merged = df[['Close']].merge(forecast.set_index('ds')[['yhat']], 
+                                       left_index=True, right_index=True, how='inner')
+            mae = (merged['Close'] - merged['yhat']).abs().mean()
+            rmse = ((merged['Close'] - merged['yhat'])**2).mean()**0.5
+            mape = ((merged['Close'] - merged['yhat']).abs() / merged['Close']).mean() * 100
+            
+            st.write(f"""
+            - **MAE (Mean Absolute Error):** ${mae:.2f}
+            - **RMSE (Root Mean Squared Error):** ${rmse:.2f}
+            - **MAPE (Mean Absolute Percentage Error):** {mape:.2f}%
+            """)
+            
             # Forecast Summary Analysis
             st.subheader("Forecast Summary and Insights")
             
@@ -202,6 +217,7 @@ def main():
             summary = f"""
             **Key Forecast Insights for {ticker}:**
             - **Final Historical Close**: ${last_close:.2f}
+            - **Model Accuracy**: MAE ${mae:.2f}, RMSE ${rmse:.2f}, MAPE {mape:.2f}%
             - **{prediction_days}-Day Price Prediction**: ${predicted_close:.2f} 
             - **Prediction Range**: ${lower_bound:.2f} - ${upper_bound:.2f}
             - **Trend Direction**: {'Bullish' if trend_change > 0 else 'Bearish'} ({abs(trend_change):.1f}% {'increase' if trend_change > 0 else 'decrease'})
@@ -211,6 +227,7 @@ def main():
             **Analysis Summary:**
             The forecast suggests a {trend_change:.1f}% {'growth' if trend_change > 0 else 'decline'} over the next {prediction_days} days. 
             Historical moving averages indicate {'strong upward' if df['MA_50'].iloc[-1] > df['MA_200'].iloc[-1] else 'downward'} momentum. 
+            Model accuracy metrics show an average error of {mape:.1f}% (MAPE) with a typical deviation of ${rmse:.2f} (RMSE).
             Investors should consider the {upper_bound - lower_bound:.2f} price range volatility when evaluating potential positions.
             """
             
@@ -218,4 +235,4 @@ def main():
             st.success('Prediction completed!')
 
 if __name__ == '__main__':
-    main()                               
+    main()
