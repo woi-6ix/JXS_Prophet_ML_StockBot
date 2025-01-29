@@ -195,17 +195,30 @@ def main():
             df_with_dates = df.reset_index()[['Date', 'Close']].rename(columns={'Date': 'ds'})
             merged = df_with_dates.merge(forecast[['ds', 'yhat']], on='ds', how='inner')
             
+            # Error Metrics Section
+            st.subheader("Model Error Metrics")
+            
+            # Prepare DataFrames for merging
+            historical = df.reset_index()[['Date', 'Close']].rename(columns={'Date': 'ds', 'Close': 'y'})
+            predictions = forecast[['ds', 'yhat']]
+            
+            # Convert both date columns to datetime
+            historical['ds'] = pd.to_datetime(historical['ds'])
+            predictions['ds'] = pd.to_datetime(predictions['ds'])
+            
+            # Merge on aligned dates
+            merged = historical.merge(predictions, on='ds', how='inner')
+            
             # Calculate metrics
-            mae = (merged['Close'] - merged['yhat']).abs().mean()
-            rmse = ((merged['Close'] - merged['yhat'])**2).mean()**0.5
-            mape = ((merged['Close'] - merged['yhat']).abs() / merged['Close']).mean() * 100
+            mae = (merged['y'] - merged['yhat']).abs().mean()
+            rmse = ((merged['y'] - merged['yhat'])**2).mean()**0.5
+            mape = ((merged['y'] - merged['yhat']).abs() / merged['y']).mean() * 100
             
             st.write(f"""
             - **MAE (Mean Absolute Error):** ${mae:.2f}
             - **RMSE (Root Mean Squared Error):** ${rmse:.2f}
             - **MAPE (Mean Absolute Percentage Error):** {mape:.2f}%
-            """)
-            
+            """)            
             # Forecast Summary Analysis
             st.subheader("Forecast Summary and Insights")
             
