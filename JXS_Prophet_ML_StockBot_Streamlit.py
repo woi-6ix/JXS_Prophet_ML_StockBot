@@ -10,7 +10,6 @@ import matplotlib.pyplot as plt
 
 # Downloading Data From yFinance #
 def get_stock_data(ticker, start_date='1998-01-01'):                  
-    
     stock_df = yf.download(ticker, start=start_date)                  
     stock_df['MA_50'] = stock_df['Close'].rolling(window=50).mean()   
     stock_df['MA_100'] = stock_df['Close'].rolling(window=100).mean()
@@ -86,6 +85,42 @@ def main():
             st.subheader('Forecast Components')
             components_fig = model.plot_components(forecast)
             st.pyplot(components_fig)
+            
+            # Additional Graphs for Insights
+            st.subheader('Additional Insights')
+            
+            # Plot Historical vs Predicted
+            fig2, ax3 = plt.subplots(figsize=(12, 6))
+            ax3.plot(df['Close'], label='Historical Close Price', color='blue')
+            ax3.plot(forecast.set_index('ds')['yhat'], label='Predicted Close Price', color='orange')
+            ax3.fill_between(forecast.set_index('ds').index, forecast['yhat_lower'], forecast['yhat_upper'], color='orange', alpha=0.2)
+            ax3.set_title(f'{ticker} Historical vs Predicted Prices')
+            ax3.set_xlabel('Date')
+            ax3.set_ylabel('Price')
+            ax3.legend()
+            st.pyplot(fig2)
+            
+            # Plot Confidence Intervals
+            fig3, ax4 = plt.subplots(figsize=(12, 6))
+            ax4.plot(forecast.set_index('ds')['yhat'], label='Predicted Close Price', color='green')
+            ax4.fill_between(forecast.set_index('ds').index, forecast['yhat_lower'], forecast['yhat_upper'], color='green', alpha=0.2)
+            ax4.set_title(f'{ticker} {prediction_days}-Day Price Prediction with Confidence Intervals')
+            ax4.set_xlabel('Date')
+            ax4.set_ylabel('Price')
+            ax4.legend()
+            st.pyplot(fig3)
+            
+            # Combined Table of Historical and Predicted Values
+            st.subheader('Combined Historical and Predicted Values')
+            combined_df = pd.concat([
+                df[['Close']].rename(columns={'Close': 'Historical Close'}),
+                forecast.set_index('ds')[['yhat', 'yhat_lower', 'yhat_upper']].rename(columns={
+                    'yhat': 'Predicted Close',
+                    'yhat_lower': 'Predicted Lower Bound',
+                    'yhat_upper': 'Predicted Upper Bound'
+                })
+            ], axis=1)
+            st.dataframe(combined_df)
             
             st.success('Prediction completed!')
 
