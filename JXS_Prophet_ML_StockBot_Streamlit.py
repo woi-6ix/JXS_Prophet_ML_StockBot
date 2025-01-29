@@ -190,15 +190,20 @@ def main():
             
             # Forecast Summary Analysis
             st.subheader("Forecast Summary and Insights")
-            last_close = df['Close'].iloc[-1]
+            
+            # Convert pandas elements to native Python types
+            last_close = float(df['Close'].iloc[-1])
             last_forecast = forecast.iloc[-1]
-            trend_change = ((last_forecast['trend'] - forecast['trend'].iloc[0]) / forecast['trend'].iloc[0]) * 100
+            predicted_close = float(last_forecast['yhat'])
+            lower_bound = float(last_forecast['yhat_lower'])
+            upper_bound = float(last_forecast['yhat_upper'])
+            trend_change = ((float(last_forecast['trend']) - float(forecast['trend'].iloc[0])) / float(forecast['trend'].iloc[0])) * 100
             
             summary = f"""
             **Key Forecast Insights for {ticker}:**
             - **Final Historical Close**: ${last_close:.2f}
-            - **{prediction_days}-Day Price Prediction**: ${last_forecast['yhat']:.2f} 
-            - **Prediction Range**: ${last_forecast['yhat_lower']:.2f} - ${last_forecast['yhat_upper']:.2f}
+            - **{prediction_days}-Day Price Prediction**: ${predicted_close:.2f} 
+            - **Prediction Range**: ${lower_bound:.2f} - ${upper_bound:.2f}
             - **Trend Direction**: {'Bullish' if trend_change > 0 else 'Bearish'} ({abs(trend_change):.1f}% {'increase' if trend_change > 0 else 'decrease'})
             - **Seasonality Impact**: {'Significant' if abs(forecast['yearly'].mean()) > 0.5 else 'Moderate'} yearly seasonality detected
             - **Moving Average Status**: {'Golden Cross' if df['MA_50'].iloc[-1] > df['MA_200'].iloc[-1] else 'Death Cross'} pattern identified
@@ -206,10 +211,10 @@ def main():
             **Analysis Summary:**
             The forecast suggests a {trend_change:.1f}% {'growth' if trend_change > 0 else 'decline'} over the next {prediction_days} days. 
             Historical moving averages indicate {'strong upward' if df['MA_50'].iloc[-1] > df['MA_200'].iloc[-1] else 'downward'} momentum. 
-            Investors should consider the {last_forecast['yhat_upper'] - last_forecast['yhat_lower']:.2f} price range volatility when evaluating potential positions.
+            Investors should consider the {upper_bound - lower_bound:.2f} price range volatility when evaluating potential positions.
             """
             
-            st.write(summary)
+            st.markdown(summary)
             st.success('Prediction completed!')
 
 if __name__ == '__main__':
