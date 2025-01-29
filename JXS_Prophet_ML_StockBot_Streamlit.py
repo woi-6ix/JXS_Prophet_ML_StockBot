@@ -26,7 +26,7 @@ def prepare_prophet_stock_data(stock_df):
 
 # Main Function #
 def main():
-    st.title("JSS Prophet Stock Prediction App")
+    st.title("JXS Prophet Stock Prediction App")
     ticker = st.text_input('Enter Stock Ticker (e.g., XYZ):', 'XYZ')
     
     if st.button('Predict'):
