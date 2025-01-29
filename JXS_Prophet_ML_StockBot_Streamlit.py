@@ -32,33 +32,48 @@ def main():
         layout="wide"
     )
 
-    # Custom CSS for black and purple theme
+    # Custom CSS for black and purple theme with Google Sans font
     st.markdown("""
     <style>
+    @import url('https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&display=swap');
+    
     .stApp {
         background-color: black;
         color: white;
+        font-family: 'Google Sans', sans-serif;
     }
+    
     h1, h2, h3, h4, h5, h6 {
         color: purple;
+        font-family: 'Google Sans', sans-serif;
+        font-weight: 700;
     }
+    
     .stButton>button {
         background-color: purple;
         color: white;
         border-radius: 5px;
         border: 1px solid purple;
+        font-family: 'Google Sans', sans-serif;
     }
+    
     .stTextInput>div>div>input {
         background-color: black;
         color: white;
         border: 1px solid purple;
+        font-family: 'Google Sans', sans-serif;
     }
+    
     .stSlider>div>div>div>div {
         background-color: purple;
     }
+    
+    .stDataFrame {
+        font-family: 'Google Sans', sans-serif;
+    }
     </style>
     """, unsafe_allow_html=True)
-
+    
     st.title("JXS Prophet Stock Prediction App")
     
     # Introductory Paragraph
