@@ -1,5 +1,4 @@
 ## Import Packages ##
-
 import yfinance as yf
 import streamlit as st
 from prophet import Prophet     
@@ -7,9 +6,9 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 from sklearn.metrics import mean_squared_error, mean_absolute_error
+import matplotlib.patches as mpatches
 
 ## Defining Functions ##
-
 # Downloading Data From yFinance #
 def get_stock_data(ticker, start_date='1998-01-01'):                  
     stock_df = yf.download(ticker, start=start_date)                  
@@ -146,37 +145,50 @@ def main():
             components_fig = model.plot_components(forecast)
             st.pyplot(components_fig)
             
-            # Additional Graphs for Insights
-            st.subheader('Additional Insights')
-            
-            # Plot Historical vs Predicted
+            # Enhanced Historical vs Predicted plot with error metrics
+            st.subheader('Historical vs Predicted Prices with Error Metrics')
             fig2, ax3 = plt.subplots(figsize=(12, 6))
-            ax3.plot(df['Close'], label='Historical Close Price', color='purple')
-            ax3.plot(forecast.set_index('ds')['yhat'], label='Predicted Close Price', color='orange')
-            ax3.fill_between(forecast.set_index('ds').index, forecast['yhat_lower'], forecast['yhat_upper'], color='orange', alpha=0.2)
-            ax3.set_title(f'{ticker} Historical vs Predicted Prices', color='white')
+            
+            # Plot historical and predicted values
+            ax3.plot(df['Close'], label='Historical Close Price', color='purple', linewidth=2)
+            ax3.plot(forecast.set_index('ds')['yhat'].iloc[:len(df)], 
+                    label='Model Predictions', color='orange', linestyle='--')
+            
+            # Add confidence interval shading
+            ax3.fill_between(forecast.set_index('ds').index[:len(df)],
+                            forecast['yhat_lower'].iloc[:len(df)],
+                            forecast['yhat_upper'].iloc[:len(df)],
+                            color='orange', alpha=0.2)
+            
+            # Calculate error metrics
+            y_true = df['Close'].values
+            y_pred = forecast['yhat'].iloc[:len(df)].values
+            rmse = np.sqrt(mean_squared_error(y_true, y_pred))
+            mae = mean_absolute_error(y_true, y_pred)
+            mape = np.mean(np.abs((y_true - y_pred) / y_true)) * 100
+            
+            # Create error metrics text box
+            metrics_text = f"""Error Metrics:
+            - RMSE: ${rmse:.2f}
+            - MAE: ${mae:.2f}
+            - MAPE: {mape:.2f}%"""
+            
+            # Add metrics to plot
+            ax3.text(0.02, 0.95, metrics_text, transform=ax3.transAxes,
+                    fontsize=10, verticalalignment='top', bbox=dict(boxstyle='round', 
+                    facecolor='white', alpha=0.8))
+            
+            # Styling
+            ax3.set_title(f'{ticker} Historical vs Predicted Prices with Error Metrics', color='black')
             ax3.set_xlabel('Date', color='black')
             ax3.set_ylabel('Price', color='black')
             ax3.set_facecolor('white')
-            ax3.legend()
+            ax3.legend(loc='lower right')
             ax3.tick_params(colors='black')
             ax3.spines['bottom'].set_color('black')
             ax3.spines['left'].set_color('black')
-            st.pyplot(fig2)
             
-            # Plot Confidence Intervals
-            fig3, ax4 = plt.subplots(figsize=(12, 6))
-            ax4.plot(forecast.set_index('ds')['yhat'], label='Predicted Close Price', color='purple')
-            ax4.fill_between(forecast.set_index('ds').index, forecast['yhat_lower'], forecast['yhat_upper'], color='purple', alpha=0.2)
-            ax4.set_title(f'{ticker} {prediction_days}-Day Price Prediction with Confidence Intervals', color='white')
-            ax4.set_xlabel('Date', color='black')
-            ax4.set_ylabel('Price', color='black')
-            ax4.set_facecolor('white')
-            ax4.legend()
-            ax4.tick_params(colors='black')
-            ax4.spines['bottom'].set_color('black')
-            ax4.spines['left'].set_color('black')
-            st.pyplot(fig3)
+            st.pyplot(fig2)
             
             # Combined Table of Historical and Predicted Values
             st.subheader('Combined Historical and Predicted Values')
@@ -189,24 +201,6 @@ def main():
                 })
             ], axis=1)
             st.dataframe(combined_df)
-            
-            # Error Metrics Section
-            st.subheader("Model Error Metrics")
-            
-            # Get aligned actual and predicted values
-            y_true = prophet_df['y'].values  # Actual values from training data
-            y_pred = forecast['yhat'].iloc[:len(prophet_df)].values  # Predictions for training period
-            
-            # Calculate metrics
-            rmse = np.sqrt(mean_squared_error(y_true, y_pred))
-            mae = mean_absolute_error(y_true, y_pred)
-            mape = np.mean(np.abs((y_true - y_pred) / y_true)) * 100
-            
-            st.write(f"""
-            - **RMSE (Root Mean Squared Error):** ${rmse:.2f}
-            - **MAE (Mean Absolute Error):** ${mae:.2f}
-            - **MAPE (Mean Absolute Percentage Error):** {mape:.2f}%
-            """)
             
             # Forecast Summary Analysis
             st.subheader("Forecast Summary and Insights")
