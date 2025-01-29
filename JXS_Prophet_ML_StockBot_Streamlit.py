@@ -194,31 +194,43 @@ def main():
             # Create common 'ds' column for merging
             df_with_dates = df.reset_index()[['Date', 'Close']].rename(columns={'Date': 'ds'})
             merged = df_with_dates.merge(forecast[['ds', 'yhat']], on='ds', how='inner')
-            
+                        
             # Error Metrics Section
             st.subheader("Model Error Metrics")
             
             # Prepare DataFrames for merging
             historical = df.reset_index()[['Date', 'Close']].rename(columns={'Date': 'ds', 'Close': 'y'})
-            predictions = forecast[['ds', 'yhat']]
+            predictions = forecast[['ds', 'yhat']].copy()
             
-            # Convert both date columns to datetime
+            # Ensure datetime format for both datasets
             historical['ds'] = pd.to_datetime(historical['ds'])
             predictions['ds'] = pd.to_datetime(predictions['ds'])
             
-            # Merge on aligned dates
-            merged = historical.merge(predictions, on='ds', how='inner')
+            # Verify DataFrame structures
+            print("Historical columns:", historical.columns.tolist())  # Debugging
+            print("Predictions columns:", predictions.columns.tolist())  # Debugging
             
-            # Calculate metrics
-            mae = (merged['y'] - merged['yhat']).abs().mean()
-            rmse = ((merged['y'] - merged['yhat'])**2).mean()**0.5
-            mape = ((merged['y'] - merged['yhat']).abs() / merged['y']).mean() * 100
+            # Merge with error handling
+            try:
+                merged = historical.merge(predictions, on='ds', how='inner')
+                print("Merged columns:", merged.columns.tolist())  # Debugging
+                
+                # Calculate metrics
+                mae = (merged['y'] - merged['yhat']).abs().mean()
+                rmse = ((merged['y'] - merged['yhat'])**2).mean()**0.5
+                mape = ((merged['y'] - merged['yhat']).abs() / merged['y']).mean() * 100
             
-            st.write(f"""
-            - **MAE (Mean Absolute Error):** ${mae:.2f}
-            - **RMSE (Root Mean Squared Error):** ${rmse:.2f}
-            - **MAPE (Mean Absolute Percentage Error):** {mape:.2f}%
-            """)            
+                st.write(f"""
+                - **MAE (Mean Absolute Error):** ${mae:.2f}
+                - **RMSE (Root Mean Squared Error):** ${rmse:.2f}
+                - **MAPE (Mean Absolute Percentage Error):** {mape:.2f}%
+                """)
+                
+            except KeyError as e:
+                st.error(f"Merge failed due to missing column: {str(e)}")
+            except pd.errors.MergeError as e:
+                st.error(f"Merge failed due to structural issues: {str(e)}")
+            
             # Forecast Summary Analysis
             st.subheader("Forecast Summary and Insights")
             
