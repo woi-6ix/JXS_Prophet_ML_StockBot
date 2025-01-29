@@ -216,7 +216,9 @@ def main():
             summary = f"""
             **Key Forecast Insights for {ticker}:**
             - **Final Historical Close**: ${last_close:.2f}
-            - **Model Accuracy**: MAE ${mae:.2f}, RMSE ${rmse:.2f}, MAPE {mape:.2f}%
+            - **Model Accuracy**: Mean Absolute Error (MAE) ${mae:.2f}
+                                  Root Mean Squared Error (RMSE) ${rmse:.2f}
+                                  Mean Absolute Percentage Error (MAPE) {mape:.2f}%
             - **{prediction_days}-Day Price Prediction**: ${predicted_close:.2f} 
             - **Prediction Range**: ${lower_bound:.2f} - ${upper_bound:.2f}
             - **Trend Direction**: {'Bullish' if trend_change > 0 else 'Bearish'} ({abs(trend_change):.1f}% {'increase' if trend_change > 0 else 'decrease'})
