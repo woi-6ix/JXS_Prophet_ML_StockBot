@@ -29,6 +29,9 @@ def main():
     st.title("JXS Prophet Stock Prediction App")
     ticker = st.text_input('Enter Stock Ticker (e.g., XYZ):', 'XYZ')
     
+    # Add a range slider for prediction days
+    prediction_days = st.slider('Select number of days to predict (0-730):', 0, 730, 365)
+    
     if st.button('Predict'):
         with st.spinner('Fetching data and making predictions...'):
             # Get data and calculate moving averages
@@ -54,8 +57,8 @@ def main():
             )
             model.fit(prophet_df)
             
-            # Create future dataframe
-            future = model.make_future_dataframe(periods=365, freq='B')
+            # Create future dataframe with dynamic periods based on slider
+            future = model.make_future_dataframe(periods=prediction_days, freq='B')
             
             # Generate forecast
             forecast = model.predict(future)
@@ -73,7 +76,7 @@ def main():
             
             # Prophet forecast plot
             model.plot(forecast, ax=ax2)
-            ax2.set_title(f'{ticker} 365-Day Price Prediction')
+            ax2.set_title(f'{ticker} {prediction_days}-Day Price Prediction')
             ax2.set_xlabel('Date')
             ax2.set_ylabel('Price')
             
