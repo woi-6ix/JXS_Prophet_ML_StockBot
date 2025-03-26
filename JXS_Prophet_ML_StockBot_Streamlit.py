@@ -1,4 +1,4 @@
-## Import Packages ##
+### Import Packages ##
 import yfinance as yf
 import streamlit as st
 from prophet import Prophet     
@@ -235,4 +235,5 @@ def main():
 
 if __name__ == '__main__':
     main()
+
 
