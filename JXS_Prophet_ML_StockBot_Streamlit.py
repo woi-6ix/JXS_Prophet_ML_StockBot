@@ -7,6 +7,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 from sklearn.metrics import mean_squared_error, mean_absolute_error
 import matplotlib.patches as mpatches
+from contextlib import redirect_stdout, redirect_stderr
+from io import StringIO
 
 ## Defining Functions ##
 # Downloading Data From yFinance #
@@ -14,9 +16,16 @@ def get_stock_data(ticker, start_date='1998-01-01'):
     try:
         # Suppress yfinance output
         import logging
+        
         logging.getLogger('yfinance').setLevel(logging.WARNING)
         
-        stock_df = yf.download(ticker, start=start_date)                  
+        # Capture stdout and stderr to suppress yfinance messages
+        stdout_capture = StringIO()
+        stderr_capture = StringIO()
+        
+        with redirect_stdout(stdout_capture), redirect_stderr(stderr_capture):
+            stock_df = yf.download(ticker, start=start_date)                  
+        
         stock_df['MA_50'] = stock_df['Close'].rolling(window=50).mean()   
         stock_df['MA_100'] = stock_df['Close'].rolling(window=100).mean()
         stock_df['MA_200'] = stock_df['Close'].rolling(window=200).mean()  
