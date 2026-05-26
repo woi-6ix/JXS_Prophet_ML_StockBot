@@ -27,7 +27,7 @@ This application provides:
 
 1. **Clone Repository**
 ```bash
-git clone https://github.com/yourusername/JSS_Prophet_Future_PredictionBot.git
+git clone https://github.com/woi-6ix/JSS_Prophet_Future_PredictionBot.git
 cd JSS_Prophet_Future_PredictionBot
 ```
 2. **Install Dependencies**
