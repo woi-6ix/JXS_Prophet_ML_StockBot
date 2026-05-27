@@ -16,10 +16,10 @@ from sklearn.metrics import mean_absolute_error, mean_squared_error
 # Downloading Data From yFinance #
 @st.cache_data(ttl=3600, show_spinner=False)
 @st.cache_data(ttl=3600, show_spinner=False)
-def get_stock_data(ticker):
+def get_stock_data(ticker, start_date="1998-01-01"):
     """
     Download daily stock data and add moving averages.
-    Returns: dataframe plus an optional error message.
+    Returns: tuple[pd.DataFrame, str | None]: dataframe plus an optional error message.
     """
     ticker = str(ticker).strip().upper()
 
@@ -35,13 +35,12 @@ def get_stock_data(ticker):
             interval="1d",
             auto_adjust=False,
             progress=False,
-            threads=False
+            threads=False,
         )
 
         if stock_df.empty:
-            return pd.DataFrame(), f"No Yahoo Finance data was returned for '{ticker}'."
+            return pd.DataFrame(), f"No Yahoo Finance data was returned for '{ticker}'. You may be rate limited or the ticker may be unavailable."
 
-        # Fix possible MultiIndex columns from yfinance
         if isinstance(stock_df.columns, pd.MultiIndex):
             stock_df.columns = stock_df.columns.get_level_values(0)
 
