@@ -1,8 +1,5 @@
 ### Import Packages ##
 import logging
-from contextlib import redirect_stdout, redirect_stderr
-from io import StringIO
-
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -15,8 +12,7 @@ from sklearn.metrics import mean_absolute_error, mean_squared_error
 ## Defining Functions ##
 # Downloading Data From yFinance #
 @st.cache_data(ttl=3600, show_spinner=False)
-@st.cache_data(ttl=3600, show_spinner=False)
-def get_stock_data(ticker, start_date="1998-01-01"):
+def get_stock_data(ticker, start_date="2010-01-01"):
     """
     Download daily stock data and add moving averages.
     Returns: tuple[pd.DataFrame, str | None]: dataframe plus an optional error message.
@@ -31,7 +27,7 @@ def get_stock_data(ticker, start_date="1998-01-01"):
     try:
         stock_df = yf.download(
             tickers=ticker,
-            period="5y",
+            period="10y",
             interval="1d",
             auto_adjust=False,
             progress=False,
@@ -301,7 +297,7 @@ def main():
                 summary = f"""
                 **Key Forecast Insights for {ticker}:**
                 - **Final Historical Close**: ${last_close:.2f}
-                - **Model Accuracy**: MAE ${mae:.2f}, RMSE ${rmse:.2f}, MAPE {mape:.2f}%
+                - **Model Fit Metrics**: MAE ${mae:.2f}, RMSE ${rmse:.2f}, MAPE {mape:.2f}%
                 - **{prediction_days}-Business-Day Price Prediction**: ${predicted_close:.2f}
                 - **Prediction Range**: ${lower_bound:.2f} - ${upper_bound:.2f}
                 - **Trend Direction**: {'Bullish' if trend_change > 0 else 'Bearish'} ({abs(trend_change):.1f}% {'increase' if trend_change > 0 else 'decrease'})
