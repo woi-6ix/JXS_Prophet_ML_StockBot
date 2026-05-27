@@ -15,106 +15,29 @@ from sklearn.metrics import mean_absolute_error, mean_squared_error
 ## Defining Functions ##
 # Downloading Data From yFinance #
 @st.cache_data(ttl=3600, show_spinner=False)
-def get_stock_data(ticker, start_date="1998-01-01"):
-    """Download daily stock data and add moving averages.
-
-    Returns:
-        tuple[pd.DataFrame, str | None]: dataframe plus an optional error message.
+def get_stock_data(ticker, start_date='1998-01-01'):
+    """
+    Download daily stock data and add moving averages.
+    Returns: tuple[pd.DataFrame, str | None]: dataframe plus an optional error message.
     """
     ticker = str(ticker).strip().upper()
-
+    
     if not ticker:
         return pd.DataFrame(), "Please enter a ticker symbol."
+    
+    # Suppress yfinance verbose logging
+    logging.getLogger('yfinance').setLevel(logging.WARNING)
 
     try:
-        logging.getLogger("yfinance").setLevel(logging.WARNING)
-
-        stdout_capture = StringIO()
-        stderr_capture = StringIO()
-
-        # Newer yfinance versions can return MultiIndex columns by default.
-        # multi_level_index=False keeps the dataframe easier to work with.
-        with redirect_stdout(stdout_capture), redirect_stderr(stderr_capture):
-            try:
-                #stock_df = yf.download(
-                    #tickers=ticker,
-                    #start=start_date,
-                    #progress=False,
-                    #auto_adjust=False,
-                    #threads=False,
-                    #multi_level_index=False,
-                    #new fix yfinance
-                    stock_df = yf.download(
-                        ticker,
-                        period="5y",
-                        interval="1d",
-                        auto_adjust=False,
-                        progress=False,
-                        threads=False,
-                        group_by="column"
-                    )
-                )
-            except TypeError:
-                # Fallback for older yfinance versions that do not support
-                # multi_level_index.
-                stock_df = yf.download(
-                    tickers=ticker,
-                    start=start_date,
-                    progress=False,
-                    auto_adjust=False,
-                    threads=False,
-                )
-
-        if stock_df is None or stock_df.empty:
-            captured_error = stderr_capture.getvalue().strip()
-            extra = f" Details: {captured_error}" if captured_error else ""
-            return pd.DataFrame(), f"No Yahoo Finance data was returned for '{ticker}'.{extra}"
-
-        # Flatten a possible MultiIndex dataframe, which can happen in recent
-        # yfinance versions even for a single ticker.
-        if isinstance(stock_df.columns, pd.MultiIndex):
-            level_0 = stock_df.columns.get_level_values(0)
-            level_1 = stock_df.columns.get_level_values(1)
-
-            if ticker in level_1:
-                stock_df = stock_df.xs(ticker, axis=1, level=1)
-            elif ticker in level_0:
-                stock_df = stock_df.xs(ticker, axis=1, level=0)
-            else:
-                stock_df.columns = level_0
-
-        stock_df = stock_df.loc[:, ~stock_df.columns.duplicated()].copy()
-        stock_df.index = pd.to_datetime(stock_df.index).tz_localize(None)
-        stock_df.index.name = "Date"
-
-        if "Close" not in stock_df.columns:
-            return pd.DataFrame(), f"Data was returned for '{ticker}', but no Close column was found."
-
-        stock_df["Close"] = pd.to_numeric(stock_df["Close"], errors="coerce")
-        stock_df = stock_df.dropna(subset=["Close"])
-
-        if len(stock_df) < 2:
-            return pd.DataFrame(), f"Not enough valid price history was found for '{ticker}'."
-
-        # Use min_periods=1 so newer tickers do not get wiped out by dropna().
-        stock_df["MA_50"] = stock_df["Close"].rolling(window=50, min_periods=1).mean()
-        stock_df["MA_100"] = stock_df["Close"].rolling(window=100, min_periods=1).mean()
-        stock_df["MA_200"] = stock_df["Close"].rolling(window=200, min_periods=1).mean()
-
-        return stock_df, None
-
-    except Exception as e:
-        return pd.DataFrame(), f"Download/preparation error for '{ticker}': {e}"
-
-stock_df = yf.download(
-    ticker,
-    period="5y",
-    interval="1d",
-    auto_adjust=False,
-    progress=False,
-    threads=False,
-    group_by="column"
-)
+        # Fetching 5 years of data as requested
+        stock_df = yf.download(
+            tickers=ticker, 
+            period='5y',
+            interval='1d',
+            auto_adjust=False, 
+            progress=False, 
+            threads=False
+        )
 
 # Prepping Stock Data Frame into Prophet Data Frame #
 def prepare_prophet_stock_data(stock_df):
