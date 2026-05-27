@@ -27,7 +27,7 @@ def get_stock_data(ticker, start_date="2010-01-01"):
     try:
         stock_df = yf.download(
             tickers=ticker,
-            period="10y",
+            period="5y",
             interval="1d",
             auto_adjust=False,
             progress=False,
