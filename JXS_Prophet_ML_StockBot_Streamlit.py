@@ -36,13 +36,23 @@ def get_stock_data(ticker, start_date="1998-01-01"):
         # multi_level_index=False keeps the dataframe easier to work with.
         with redirect_stdout(stdout_capture), redirect_stderr(stderr_capture):
             try:
-                stock_df = yf.download(
-                    tickers=ticker,
-                    start=start_date,
-                    progress=False,
-                    auto_adjust=False,
-                    threads=False,
-                    multi_level_index=False,
+                #stock_df = yf.download(
+                    #tickers=ticker,
+                    #start=start_date,
+                    #progress=False,
+                    #auto_adjust=False,
+                    #threads=False,
+                    #multi_level_index=False,
+                    #new fix yfinance
+                    stock_df = yf.download(
+                        ticker,
+                        period="5y",
+                        interval="1d",
+                        auto_adjust=False,
+                        progress=False,
+                        threads=False,
+                        group_by="column"
+                    )
                 )
             except TypeError:
                 # Fallback for older yfinance versions that do not support
@@ -96,6 +106,15 @@ def get_stock_data(ticker, start_date="1998-01-01"):
     except Exception as e:
         return pd.DataFrame(), f"Download/preparation error for '{ticker}': {e}"
 
+stock_df = yf.download(
+    ticker,
+    period="5y",
+    interval="1d",
+    auto_adjust=False,
+    progress=False,
+    threads=False,
+    group_by="column"
+)
 
 # Prepping Stock Data Frame into Prophet Data Frame #
 def prepare_prophet_stock_data(stock_df):
