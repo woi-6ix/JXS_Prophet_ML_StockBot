@@ -99,7 +99,7 @@ def calculate_metrics(df, forecast):
 # Main Function #
 def main():
     st.set_page_config(
-        page_title="JXS Prophet Stock Prediction App",
+        page_title="FB Prophet JXS Stock Prediction App",
         page_icon="📈",
         layout="centered",
     )
