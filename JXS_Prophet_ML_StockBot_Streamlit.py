@@ -60,11 +60,28 @@ def get_stock_data(ticker, start_date="1998-01-01"):
         
 # Prepping Stock Data Frame into Prophet Data Frame #
 def prepare_prophet_stock_data(stock_df):
-    prophet_df = stock_df[["Close"]].reset_index()
-    prophet_df = prophet_df.rename(columns={"Date": "ds", "Close": "y"})
-    prophet_df["ds"] = pd.to_datetime(prophet_df["ds"]).dt.tz_localize(None)
+    # Keep only the closing price and reset the date index into a column
+    prophet_df = stock_df[["Close"]].copy().reset_index()
+
+    # The first column after reset_index is the date column.
+    # It might be called "Date", "Datetime", or "index", so rename it safely.
+    date_column = prophet_df.columns[0]
+
+    prophet_df = prophet_df.rename(
+        columns={
+            date_column: "ds",
+            "Close": "y"
+        }
+    )
+
+    # Convert columns into the exact format Prophet needs
+    prophet_df["ds"] = pd.to_datetime(prophet_df["ds"], errors="coerce")
+    prophet_df["ds"] = prophet_df["ds"].dt.tz_localize(None)
     prophet_df["y"] = pd.to_numeric(prophet_df["y"], errors="coerce")
-    prophet_df = prophet_df.dropna(subset=["ds", "y"])
+
+    # Keep only valid Prophet rows
+    prophet_df = prophet_df[["ds", "y"]].dropna()
+
     return prophet_df
 
 
