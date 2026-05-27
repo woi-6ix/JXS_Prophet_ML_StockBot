@@ -15,30 +15,50 @@ from sklearn.metrics import mean_absolute_error, mean_squared_error
 ## Defining Functions ##
 # Downloading Data From yFinance #
 @st.cache_data(ttl=3600, show_spinner=False)
-def get_stock_data(ticker, start_date='1998-01-01'):
+@st.cache_data(ttl=3600, show_spinner=False)
+def get_stock_data(ticker):
     """
     Download daily stock data and add moving averages.
-    Returns: tuple[pd.DataFrame, str | None]: dataframe plus an optional error message.
+    Returns: dataframe plus an optional error message.
     """
     ticker = str(ticker).strip().upper()
-    
+
     if not ticker:
         return pd.DataFrame(), "Please enter a ticker symbol."
-    
-    # Suppress yfinance verbose logging
-    logging.getLogger('yfinance').setLevel(logging.WARNING)
+
+    logging.getLogger("yfinance").setLevel(logging.WARNING)
 
     try:
-        # Fetching 5 years of data as requested
         stock_df = yf.download(
-            tickers=ticker, 
-            period='5y',
-            interval='1d',
-            auto_adjust=False, 
-            progress=False, 
+            tickers=ticker,
+            period="5y",
+            interval="1d",
+            auto_adjust=False,
+            progress=False,
             threads=False
         )
 
+        if stock_df.empty:
+            return pd.DataFrame(), f"No Yahoo Finance data was returned for '{ticker}'."
+
+        # Fix possible MultiIndex columns from yfinance
+        if isinstance(stock_df.columns, pd.MultiIndex):
+            stock_df.columns = stock_df.columns.get_level_values(0)
+
+        if "Close" not in stock_df.columns:
+            return pd.DataFrame(), f"No closing price data found for '{ticker}'."
+
+        stock_df = stock_df.dropna(subset=["Close"])
+
+        stock_df["MA_50"] = stock_df["Close"].rolling(window=50, min_periods=1).mean()
+        stock_df["MA_100"] = stock_df["Close"].rolling(window=100, min_periods=1).mean()
+        stock_df["MA_200"] = stock_df["Close"].rolling(window=200, min_periods=1).mean()
+
+        return stock_df, None
+
+    except Exception as e:
+        return pd.DataFrame(), f"Error downloading data for '{ticker}': {e}"
+        
 # Prepping Stock Data Frame into Prophet Data Frame #
 def prepare_prophet_stock_data(stock_df):
     prophet_df = stock_df[["Close"]].reset_index()
