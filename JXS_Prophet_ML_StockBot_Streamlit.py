@@ -99,7 +99,7 @@ def calculate_metrics(df, forecast):
 # Main Function #
 def main():
     st.set_page_config(
-        page_title="FB Prophet JXS Stock Prediction App",
+        page_title="PROPHET Prediction StockBot",
         page_icon="📈",
         layout="centered",
     )
@@ -133,12 +133,12 @@ def main():
         unsafe_allow_html=True,
     )
 
-    st.title("JXS Prophet Stock Prediction App")
+    st.title("PROPHET Prediction StockBot")
 
     st.write(
         """
         ### How the Model Works
-        This app uses **Prophet** to forecast stock prices. Prophet is a time series forecasting model that decomposes data into trend, seasonality, and uncertainty.
+        This app uses **FB Prophet** to forecast stock prices. Prophet is a time series forecasting model that decomposes data into trend, seasonality, and uncertainty.
 
         The app also calculates **moving averages (50-day, 100-day, and 200-day)** to help visualize shorter-term and longer-term price trends.
         """
