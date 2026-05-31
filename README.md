@@ -8,7 +8,7 @@
 
 A Streamlit-based stock forecasting dashboard that uses Yahoo Finance market data, Meta/Facebook Prophet time-series modelling, moving averages, and model fit metrics to generate educational stock price forecasts.
 
-URL: https://prophet-stockbot.streamlit.app/
+URL: [https://prophet-stockbot.streamlit.app/](https://prophet-stockbot-jxs.streamlit.app/)
 
 ---
 
